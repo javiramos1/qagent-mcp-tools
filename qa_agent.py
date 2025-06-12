@@ -17,6 +17,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Custom tool definitions for Arcade.dev tools
+# We override the descriptions to customize the public tools and provide detailed usage instructions to limit the scope of the agent and the sites used
+# Alternatively, you can use Arcade.dev to create your own tools with custom descriptions
 ARCADE_TOOLS_DESCRIPTIONS = {
     "Search.SearchGoogle": """Search documentation websites using Google Search.
     
@@ -92,12 +94,13 @@ def create_arcade_tools(config: Dict[str, Any]) -> List[Tool]:
     """Create LangChain tools from Arcade.dev tools"""
     from langchain_arcade import ArcadeToolManager
 
+    # Initialize Arcade tool manager to import tools from our account
     manager = ArcadeToolManager(api_key=config["arcade_api_key"])
 
-    # Get all tools in a single call
+    # We remotely initialize the tools with Arcade.dev and transform them to LangChain tools
     tools = manager.init_tools(tools=["Search.SearchGoogle", "Web.ScrapeUrl"])
 
-    # Update descriptions
+    # Update descriptions with the custom descriptions to limit the search scope
     tools[0].description = ARCADE_TOOLS_DESCRIPTIONS["Search.SearchGoogle"]
     tools[1].description = ARCADE_TOOLS_DESCRIPTIONS["Web.ScrapeUrl"]
 
@@ -128,7 +131,9 @@ def build_knowledge_sources_text(sites_df: pd.DataFrame) -> tuple[str, List[str]
     return knowledge_sources_md, domains
 
 
-def create_system_prompt(knowledge_sources_md: str, domains: List[str], max_results: int = 10) -> str:
+def create_system_prompt(
+    knowledge_sources_md: str, domains: List[str], max_results: int = 10
+) -> str:
     """Create the system prompt with knowledge sources"""
     return f"""You are a specialized Q&A agent that searches specific documentation websites.
 
@@ -214,7 +219,9 @@ class DomainQAAgent:
     def _create_agent(self, tools: List[Tool]) -> AgentExecutor:
         """Create structured chat agent with tools and prompt"""
         knowledge_sources_md, domains = build_knowledge_sources_text(self.sites_df)
-        system_message = create_system_prompt(knowledge_sources_md, domains, self.config.get("max_search_results", 10))
+        system_message = create_system_prompt(
+            knowledge_sources_md, domains, self.config.get("max_search_results", 10)
+        )
 
         prompt = ChatPromptTemplate.from_messages(
             [
