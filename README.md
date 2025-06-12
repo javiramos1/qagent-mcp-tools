@@ -202,12 +202,6 @@ graph TD
     L[MCP Protocol] --> E & H
     M[Arcade Platform] --> L
     
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style E fill:#e8f5e8
-    style H fill:#fff3e0
-    style L fill:#e0f2f1
-    style M fill:#f1f8e9
 ```
 
 ### Architecture Benefits
